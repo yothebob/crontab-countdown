@@ -84,17 +84,49 @@ def grab_key_index(index,dictionary):
     i = 0
     for key in dictionary.keys():
         #print(key)
-        if i == index:
+        if i == int(index):
             return key
         i += 1
 
 
 
-def calulate_time(time):
-    if time == "*":
-        pass
-        #WORK IN PROGRESS#
+def convert_crontab_time(function_time,current_time):
+    print("\n"*2)
+    print(function_time)
 
+    if function_time == "*":
+        print(current_time + 1)
+        return current_time + 1
+    elif function_time == "*/1":
+        print(current_time + 1)
+        return current_time + 1
+
+    result_range = []
+
+    if "," in function_time:
+        print("found ,")
+        comma_split_time = function_time.split(",")
+        print(comma_split_time)
+
+        for time_arg in comma_split_time:
+            if "-" in time_arg:
+                print(time_arg)
+                time_range = time_arg.split("-")
+                result_range += [time for time in range(int(time_range[0]),int(time_range[1])+1)]
+                print(result_range)
+            else:
+                result_range.append(int(time_arg))
+        print(result_range)
+
+    elif "-" in function_time:
+        print("found -")
+        dash_split_time = function_time.split("-")
+        result_range += [time for time in range(int(dash_split_time[0]),int(dash_split_time[1])+1)]
+        print(result_range)
+
+    else:
+        print(function_time)
+        return function_time
 
 
 def terminal_ui():
@@ -108,12 +140,15 @@ def terminal_ui():
         functions = create_functions_dictionary()
         print(functions)
         function_index = 0
+
         for key,value in functions.items():
             print(f"{function_index}: {key}")
             function_index += 1
+
         user_input = input("type the corrisponding number to the function you want to check.\n: ")
         print(grab_key_index(int(user_input),functions))
         print(functions[grab_key_index(int(user_input),functions)])
+
     if user_input.lower() == "exit":
         exit()
     else:
@@ -127,8 +162,18 @@ Testing below \/\/\/\/\/\/
 
 '''
 x = datetime.now()
-d = date
-xx = d.day
-print(x)
-print(xx)
-terminal_ui()
+min = x.minute
+hour = x.hour
+day = x.day
+month = x.month
+dow = x.weekday()
+print(min,hour)
+print(day,month)
+print(dow)
+#terminal_ui()
+
+convert_crontab_time("11,25",day)
+convert_crontab_time("11-23",day)
+convert_crontab_time('23,0-5',day)
+convert_crontab_time("*",day)
+convert_crontab_time("0",day)
