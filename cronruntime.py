@@ -156,12 +156,19 @@ class CronRunTime:
                 next_time = (math.floor(current_time/function_time[0])* function_time[0]) + function_time[0]
                 return next_time- current_time
             else:
-                closest = 25
+                closest = 100
+                loop_around = 100
                 for time in function_time:
+                    if time < loop_around:
+                        loop_around = time
                     if time > current_time:
                         if time < closest:
                             closest = time
-                return closest- current_time
+                if closest != 100:
+                    return closest- current_time
+                else:
+                    print(loop_around)
+                    return ((max_time - current_time) + loop_around)
 
 
 
@@ -205,7 +212,7 @@ class CronRunTime:
 
         time_fields = self.return_function_next_run_time(function_values)
 
-        print(f"{function_key}")
+        print(f"{function_key},{function_values}")
         for number in range(len(time_fields)):
             print(f"you have {time_fields[number]} {fields[number]}/s... ")
         print()
@@ -213,6 +220,7 @@ class CronRunTime:
 
 
     def terminal_ui(self):
+        ''' a terminal user interface that can get the time remaining for one job or all jobs'''
         print('''
             type "check" to check a crontab command time...
             type "all" to check all next run times...
@@ -230,9 +238,9 @@ class CronRunTime:
                 function_index += 1
 
             user_input = input("type the corrisponding number to the function you want to check.\n: ")
-
-            function_key = self.grab_key_index(user_input,functions)
-            self.display_function_next_run_time(function_key, functions[function_key])
+            if user_input.isnumeric():
+                function_key = self.grab_key_index(user_input,functions)
+                self.display_function_next_run_time(function_key, functions[function_key])
 
         elif user_input.lower() == "all":
             functions = self.create_functions_dictionary()
@@ -245,5 +253,3 @@ class CronRunTime:
         else:
             print("Sorry please try again..." + "\n"*2)
             self.terminal_ui()
-
-

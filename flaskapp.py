@@ -9,16 +9,14 @@ filename = "crontab_cases.txt"
 filepath = os.getcwd()
 print(filepath)
 
-
+app.static_folder = "static"
 
 @app.route("/",methods=['GET','POST'])
 def index():
 
     crontab = CronRunTime(filename,filepath)
     functions = crontab.create_functions_dictionary()
-    print(functions)
     tupled_keys = [(key,key) for key in functions.keys()]
-    print(tupled_keys)
 
     class FunctionForm(Form):
         select_function = SelectField("Select your function: ",choices=tupled_keys)
@@ -26,8 +24,6 @@ def index():
 
     form = FunctionForm(request.form)
     if request.method == "POST":
-        print(form.select_function.data)
-
         time_fields = functions[form.select_function.data]
         time_remaining_fields = crontab.return_function_next_run_time(time_fields)
         real_times = ["min","hour","day","month","day of week"]

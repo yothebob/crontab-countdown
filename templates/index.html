@@ -3,15 +3,21 @@
  <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
     <title>Crontab Run Time</title>
  </head>
  <body>
-    <form class = "" method="post">
-        {{form.select_function.label()}}
-        {{form.select_function}}
-        {{form.submit}}
-    </form>
-    <div>
+   <div class="blank">
+
+   </div>
+   <div class="form">
+     <form class = "" method="post">
+         {{form.select_function.label()}}
+         {{form.select_function}}
+         {{form.submit}}
+     </form>
+   </div>
+    <div class="timer">
         {%if time_remaining_fields %}
             {% for num in range(5) %}
                 <h1>{{time_remaining_fields[num]}}  {{real_times[num]}}/s remaining... </h1>

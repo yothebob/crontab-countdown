@@ -10,7 +10,7 @@ def main():
 
     filename = "brandon"
 
-    crontab = CronRunTime(filename)
+    crontab = CronRunTime(test_filename,test_filepath)
 
     #terminal interface
     crontab.terminal_ui()
