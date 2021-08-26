@@ -1,0 +1,22 @@
+ Where I left off:
+    I made functions for...
+        - opening and reading the crontab commands
+        - extracting the function from time stamps
+        - creating a dict for each function in form of {"function": [min,hour,dom,month,dow]}
+        - small function for getting a dict key from an index number
+        - started terminal ui (probably not perminant.. Flask or tkinter???)
+
+To pick up on:
+    - I need to figure out the datetime and how i am going to convert that and compare to real time
+
+
+
+to do:
+    - test it with a real crontab file and not just a txt file
+    - create a class with functions built in, put a main function in the program
+
+
+would be nice:
+    - maybe make a better interface...
+    - can I make it real time updating?
+

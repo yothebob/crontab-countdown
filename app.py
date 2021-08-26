@@ -5,6 +5,9 @@ from datetime import datetime, date
 filepath = ""
 filename = "crontab_cases.txt"
 
+# cronpath /var/spool/cron
+#cron filename brandon
+
 
 def retrieve_crontab_tasks(filepath,filename):
     '''
@@ -80,7 +83,7 @@ def grab_key_index(index,dictionary):
     '''
     i = 0
     for key in dictionary.keys():
-        print(key)
+        #print(key)
         if i == index:
             return key
         i += 1
@@ -90,6 +93,7 @@ def grab_key_index(index,dictionary):
 def calulate_time(time):
     if time == "*":
         pass
+        #WORK IN PROGRESS#
 
 
 
@@ -102,12 +106,14 @@ def terminal_ui():
 
     if user_input.lower() == "check":
         functions = create_functions_dictionary()
+        print(functions)
         function_index = 0
         for key,value in functions.items():
             print(f"{function_index}: {key}")
             function_index += 1
         user_input = input("type the corrisponding number to the function you want to check.\n: ")
         print(grab_key_index(int(user_input),functions))
+        print(functions[grab_key_index(int(user_input),functions)])
     if user_input.lower() == "exit":
         exit()
     else:
@@ -121,6 +127,8 @@ Testing below \/\/\/\/\/\/
 
 '''
 x = datetime.now()
+d = date
+xx = d.day
 print(x)
-print(datetime.day)
+print(xx)
 terminal_ui()
