@@ -21,10 +21,7 @@ class CronRunTime:
         Opens chrontab file according to file name/path and returns all the chrontab commands
         '''
 
-        #os.chdir(self.filepath)
-        os.chdir("/var/spool/cron")
-        print(os.getcwd())
-        print(os.listdir())
+        os.chdir(self.filepath)
         f = open(self.filename,"r")
         return [line for line in f if "*" in line and "#" not in line]
 
@@ -54,7 +51,7 @@ class CronRunTime:
         time_list.append(job_time)
 
         if len(time_list) >=5:
-            return time_list,popped_job
+            return time_list,popped_job[:-1]
         else:
             return self.extract_crontab_elements(popped_job,time_list)
 
@@ -136,7 +133,7 @@ class CronRunTime:
 
 
 
-    def find_next_run_time(self,function_time,current_time,max_time):
+    def find_field_next_run(self,function_time,current_time,max_time):
         '''
         Input : function_time (int or list)
                 current_time (int)
@@ -164,7 +161,30 @@ class CronRunTime:
                     if time > current_time:
                         if time < closest:
                             closest = time
-                return closest
+                return closest- current_time
+
+
+
+    def return_function_next_run_time(self,function_values):
+        '''
+        Input : function_values (list)
+        Output : time_fields (list)
+
+        Converts a crontab functions timefields in time remaining untill it runs again,
+        this returns the time remaining in [min,hour, etc..] format
+        '''
+        now = datetime.now()
+        current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
+        #fields = ["minute", "hour","day", "month", "day of week"]
+        max_day = calendar.monthrange(now.year,now.month)
+        max_times = [59,23,max_day[1],12,6]
+        time_fields = []
+
+        for number in range(len(function_values)):
+            converted_time = self.convert_crontab_time(function_values[number],current_times[number])
+            time_remaining = self.find_field_next_run(converted_time,current_times[number],max_times[number])
+            time_fields.append(time_remaining)
+        return time_fields
 
 
 
@@ -175,8 +195,7 @@ class CronRunTime:
 
         Output : NA
 
-        a function that runs the "find_next_run_time" function for each time field,
-        displays that in the terminal in a readable fashion
+        displays the time remaining in the terminal in a readable fashion
         '''
         now = datetime.now()
         current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
@@ -184,11 +203,11 @@ class CronRunTime:
         max_day = calendar.monthrange(now.year,now.month)
         max_times = [59,23,max_day[1],12,6]
 
+        time_fields = self.return_function_next_run_time(function_values)
+
         print(f"{function_key}")
-        for number in range(len(function_values)):
-            converted_time = self.convert_crontab_time(function_values[number],current_times[number])
-            time_remaining = self.find_next_run_time(converted_time,current_times[number],max_times[number])
-            print(f"you have {time_remaining} {fields[number]}/s... ")
+        for number in range(len(time_fields)):
+            print(f"you have {time_fields[number]} {fields[number]}/s... ")
         print()
 
 
