@@ -1,172 +1,190 @@
-import re
 import os
 from datetime import datetime, date
 
-filepath = ""
-filename = "crontab_cases.txt"
 
-# cronpath /var/spool/cron
-#cron filename brandon
+class CronRunTime:
 
-
-def retrieve_crontab_tasks(filepath,filename):
-    '''
-    input : filepath (str)
-            filename (str)
-
-    output : (list)
-
-    Opens chrontab file according to file name/path and returns all the chrontab commands
-    '''
-
-    f = open(filename,"r")
-    return [line for line in f if "*" in line and "#" not in line]
+    def __init__(self,filename,filepath):
+        self.filepath = filepath #="/var/spool/cron"
+        self.filename = filename
 
 
 
-def extract_crontab_elements(task,time_list=[]):
-    '''
-    Input : task (str)
-            time_list (list)
+    def retrieve_crontab_tasks(self):
+        '''
+        input : filepath (str)
+                filename (str)
 
-    Output : time_list (list)
-             popped_job (str)
+        output : (list)
 
-    a function that takes in a chrontab command and returns an array of
-    the times [min,hour,dom,month,dow] and the remainder of the command string
-    '''
-    popped_job = ""
-    job_time = ""
+        Opens chrontab file according to file name/path and returns all the chrontab commands
+        '''
 
-    for number in range(len(task)):
-        if task[number] == " ":
-            if len(job_time) > 0:
-                popped_job = task[number:]
-                break
-        else:
-            job_time += task[number]
-    time_list.append(job_time)
-
-    if len(time_list) >=5:
-        return time_list,popped_job
-    else:
-        return extract_crontab_elements(popped_job,time_list)
+        #os.chdir(self.filepath)
+        f = open(self.filename,"r")
+        return [line for line in f if "*" in line and "#" not in line]
 
 
 
-def create_functions_dictionary():
-    '''
-    Input : NA
-    Output : functions (dict)
+    def extract_crontab_elements(self,task,time_list=[]):
+        '''
+        Input : task (str)
+                time_list (list)
 
-    this function reads the crontab file, extracts crontab elements, and puts them
-    in a dictionary {'function': [min,hour,dom,month,dow]}
-    '''
-    tasks = retrieve_crontab_tasks(filepath,filename)
-    functions = {}
+        Output : time_list (list)
+                popped_job (str)
 
-    for task in range(len(tasks)):
-        times,command = extract_crontab_elements(tasks[task],[])
-        functions[command] = times
+        a function that takes in a chrontab command and returns an array of
+        the times [min,hour,dom,month,dow] and the remainder of the command string
+        '''
+        popped_job = ""
+        job_time = ""
 
-    return functions
-
-
-
-def grab_key_index(index,dictionary):
-    '''
-    Input : index (int)
-            dictionary (dict)
-    Output : key (str)
-
-    given an index returns that key from a dictionary
-    '''
-    i = 0
-    for key in dictionary.keys():
-        #print(key)
-        if i == int(index):
-            return key
-        i += 1
-
-
-
-def convert_crontab_time(function_time,current_time):
-    print("\n")
-    print(function_time)
-    result_range = []
-
-    if "*" in function_time:
-        if "/" in function_time:
-            print("found /")
-            slash_split_time = function_time.split("/")
-            print(slash_split_time)
-            print(int(slash_split_time[-1])/1)
-        else:
-            print(current_time + 1)
-            return current_time + 1
-
-    elif "," in function_time:
-        print("found ,")
-        comma_split_time = function_time.split(",")
-        print(comma_split_time)
-
-        for time_arg in comma_split_time:
-            if "-" in time_arg:
-                print(time_arg)
-                time_range = time_arg.split("-")
-                result_range += [time for time in range(int(time_range[0]),int(time_range[1])+1)]
-                print(result_range)
+        for number in range(len(task)):
+            if task[number] == " ":
+                if len(job_time) > 0:
+                    popped_job = task[number:]
+                    break
             else:
-                result_range.append(int(time_arg))
-        print(result_range)
-        return result_range
+                job_time += task[number]
+        time_list.append(job_time)
 
-    elif "-" in function_time:
-        print("found -")
-        dash_split_time = function_time.split("-")
-        result_range += [time for time in range(int(dash_split_time[0]),int(dash_split_time[1])+1)]
-        print(result_range)
-        return result_range
-
-    else:
-        print(function_time)
-        return function_time
+        if len(time_list) >=5:
+            return time_list,popped_job
+        else:
+            return self.extract_crontab_elements(popped_job,time_list)
 
 
 
-def terminal_ui():
-    print('''
-        type "check" to check a crontab command time...
-        type "exit" to exit
-        ''')
-    user_input = input(":")
+    def create_functions_dictionary(self):
+        '''
+        Input : NA
+        Output : functions (dict)
 
-    if user_input.lower() == "check":
-        functions = create_functions_dictionary()
-        print(functions)
-        function_index = 0
+        this function reads the crontab file, extracts crontab elements, and puts them
+        in a dictionary {'function': [min,hour,dom,month,dow]}
+        '''
+        tasks = self.retrieve_crontab_tasks()
+        functions = {}
 
-        for key,value in functions.items():
-            print(f"{function_index}: {key}")
-            function_index += 1
+        for task in range(len(tasks)):
+            times,command = self.extract_crontab_elements(tasks[task],[])
+            functions[command] = times
 
-        user_input = input("type the corrisponding number to the function you want to check.\n: ")
-        print(grab_key_index(int(user_input),functions))
-        print(functions[grab_key_index(int(user_input),functions)])
+        return functions
 
-        now = datetime.now()
 
-        current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
-        function_times = functions[grab_key_index(user_input,functions)]
 
-        for number in range(len(function_times)):
-            convert_crontab_time(function_times[number],current_times[number])
+    def grab_key_index(self,index,dictionary):
+        '''
+        Input : index (int)
+                dictionary (dict)
+        Output : key (str)
 
-    elif user_input.lower() == "exit":
-        exit()
-    else:
-        print("Sorry please try again..." + "\n"*2)
-        terminal_ui()
+        given an index returns that key from a dictionary
+        '''
+        i = 0
+        for key in dictionary.keys():
+            if i == int(index):
+                return key
+            i += 1
+
+
+
+    def convert_crontab_time(self,function_time,current_time):
+        '''
+        Input : function_time (str)
+                current_time (int)
+
+        Output : (int or list)
+
+        given a string and a current time, this function will return
+        an array of times the function will run or an int number of when it will run.
+        If function time == "*/x" it will return a list of the denomiator ex : */1 = 1
+        '''
+        result_range = []
+
+        if "*" in function_time:
+            if "/" in function_time:
+                slash_split_time = function_time.split("/")
+                return [int(slash_split_time[-1])/1]
+            else:
+                return current_time + 1
+
+        elif "," in function_time:
+            comma_split_time = function_time.split(",")
+
+            for time_arg in comma_split_time:
+                if "-" in time_arg:
+                    time_range = time_arg.split("-")
+                    result_range += [time for time in range(int(time_range[0]),int(time_range[1])+1)]
+                else:
+                    result_range.append(int(time_arg))
+            return result_range
+
+        elif "-" in function_time:
+            dash_split_time = function_time.split("-")
+            result_range += [time for time in range(int(dash_split_time[0]),int(dash_split_time[1])+1)]
+            return result_range
+
+        else:
+            return int(function_time)
+
+
+
+    def find_next_run_time(self,function_time,current_time):
+
+        if type(function_time) is str:
+            print("god no",function_time)
+        elif type(function_time) is int:
+            print("numbers are cool",function_time)
+        elif type(function_time) is list:
+            if len(function_time) == 1:
+                print("this isnt any normal list...",function_time)
+            else:
+                print('lists are cool too',function_time)
+
+
+
+
+
+    def terminal_ui(self):
+        print('''
+            type "check" to check a crontab command time...
+            type "all" to check all next run times...
+            type "exit" to exit...
+            ''')
+        user_input = input(":")
+
+        if user_input.lower() == "check":
+            functions = self.create_functions_dictionary()
+            print(functions)
+            function_index = 0
+
+            for key,value in functions.items():
+                print(f"{function_index}: {key}")
+                function_index += 1
+
+            user_input = input("type the corrisponding number to the function you want to check.\n: ")
+            print(self.grab_key_index(int(user_input),functions))
+            print(functions[self.grab_key_index(int(user_input),functions)])
+
+            now = datetime.now()
+
+            current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
+            function_times = functions[self.grab_key_index(user_input,functions)]
+
+            time_differences = []
+
+            for number in range(len(function_times)):
+                converted_time = self.convert_crontab_time(function_times[number],current_times[number])
+                self.find_next_run_time(converted_time,current_times[number])
+
+        elif user_input.lower() == "exit":
+            exit()
+        else:
+            print("Sorry please try again..." + "\n"*2)
+            self.terminal_ui()
 
 
 
@@ -174,13 +192,13 @@ def terminal_ui():
 Testing below \/\/\/\/\/\/
 
 '''
-x = datetime.now()
-min = x.minute
-hour = x.hour
-day = x.day
-month = x.month
-dow = x.weekday()
-print(min,hour)
-print(day,month)
-print(dow)
-terminal_ui()
+def testing():
+
+    filepath = ""
+    filename = "crontab_cases.txt"
+
+    # cronpath /var/spool/cron
+    #cron filename brandon
+
+    crontab = CronRunTime(filename,filepath)
+    crontab.terminal_ui()
