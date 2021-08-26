@@ -6,29 +6,7 @@
         - small function for getting a dict key from an index number
         - started terminal ui (probably not perminant.. Flask or tkinter???)
 
-To pick up on:
-    - I need to figure out the datetime and how i am going to convert that and compare to real time
-
-
-
-to do:
-    - test it with a real crontab file and not just a txt file
-    - create a class with functions built in, put a main function in the program
-
 
 would be nice:
     - maybe make a better interface...
     - can I make it real time updating?
-
-
-
-now = datetime.now()
-            current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
-            max_day = calendar.monthrange(now.year,now.month)
-            max_times = [59,23,max_day[1],12,6]
-
-            for key, values in functions.items():
-                print("\n"*2,f"Key : {key} ")
-                for number in range(len(values)):
-                    converted_time = self.convert_crontab_time(values[number],current_times[number])
-                    self.find_next_run_time(converted_time,current_times[number],max_times[number])

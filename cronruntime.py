@@ -5,8 +5,8 @@ import calendar
 
 class CronRunTime:
 
-    def __init__(self,filename,filepath):
-        self.filepath = filepath #="/var/spool/cron"
+    def __init__(self,filename,filepath="/var/spool/cron"):
+        self.filepath = filepath
         self.filename = filename
 
 
@@ -22,6 +22,9 @@ class CronRunTime:
         '''
 
         #os.chdir(self.filepath)
+        os.chdir("/var/spool/cron")
+        print(os.getcwd())
+        print(os.listdir())
         f = open(self.filename,"r")
         return [line for line in f if "*" in line and "#" not in line]
 
