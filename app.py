@@ -20,7 +20,7 @@ def retrieve_crontab_tasks(filepath,filename):
     '''
 
     f = open(filename,"r")
-    return [line for line in f if "*" in line]
+    return [line for line in f if "*" in line and "#" not in line]
 
 
 
@@ -91,19 +91,21 @@ def grab_key_index(index,dictionary):
 
 
 def convert_crontab_time(function_time,current_time):
-    print("\n"*2)
+    print("\n")
     print(function_time)
-
-    if function_time == "*":
-        print(current_time + 1)
-        return current_time + 1
-    elif function_time == "*/1":
-        print(current_time + 1)
-        return current_time + 1
-
     result_range = []
 
-    if "," in function_time:
+    if "*" in function_time:
+        if "/" in function_time:
+            print("found /")
+            slash_split_time = function_time.split("/")
+            print(slash_split_time)
+            print(int(slash_split_time[-1])/1)
+        else:
+            print(current_time + 1)
+            return current_time + 1
+
+    elif "," in function_time:
         print("found ,")
         comma_split_time = function_time.split(",")
         print(comma_split_time)
@@ -117,16 +119,19 @@ def convert_crontab_time(function_time,current_time):
             else:
                 result_range.append(int(time_arg))
         print(result_range)
+        return result_range
 
     elif "-" in function_time:
         print("found -")
         dash_split_time = function_time.split("-")
         result_range += [time for time in range(int(dash_split_time[0]),int(dash_split_time[1])+1)]
         print(result_range)
+        return result_range
 
     else:
         print(function_time)
         return function_time
+
 
 
 def terminal_ui():
@@ -149,7 +154,15 @@ def terminal_ui():
         print(grab_key_index(int(user_input),functions))
         print(functions[grab_key_index(int(user_input),functions)])
 
-    if user_input.lower() == "exit":
+        now = datetime.now()
+
+        current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
+        function_times = functions[grab_key_index(user_input,functions)]
+
+        for number in range(len(function_times)):
+            convert_crontab_time(function_times[number],current_times[number])
+
+    elif user_input.lower() == "exit":
         exit()
     else:
         print("Sorry please try again..." + "\n"*2)
@@ -170,10 +183,4 @@ dow = x.weekday()
 print(min,hour)
 print(day,month)
 print(dow)
-#terminal_ui()
-
-convert_crontab_time("11,25",day)
-convert_crontab_time("11-23",day)
-convert_crontab_time('23,0-5',day)
-convert_crontab_time("*",day)
-convert_crontab_time("0",day)
+terminal_ui()
