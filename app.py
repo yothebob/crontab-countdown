@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, date
-
+import math
+import calendar
 
 class CronRunTime:
 
@@ -109,7 +110,7 @@ class CronRunTime:
                 slash_split_time = function_time.split("/")
                 return [int(slash_split_time[-1])/1]
             else:
-                return current_time + 1
+                return current_time
 
         elif "," in function_time:
             comma_split_time = function_time.split(",")
@@ -132,19 +133,60 @@ class CronRunTime:
 
 
 
-    def find_next_run_time(self,function_time,current_time):
+    def find_next_run_time(self,function_time,current_time,max_time):
+        '''
+        Input : function_time (int or list)
+                current_time (int)
+                max_time (int)
 
-        if type(function_time) is str:
-            print("god no",function_time)
-        elif type(function_time) is int:
-            print("numbers are cool",function_time)
+        Output : (int)
+
+        given the converted crontab time for a given min, hour or etc, it will process accordingly and return the next run time as an int
+        '''
+
+        if type(function_time) is int:
+            res = function_time-current_time
+            if res < 0:
+                return max_time + res
+            else:
+                return res
+
         elif type(function_time) is list:
             if len(function_time) == 1:
-                print("this isnt any normal list...",function_time)
+                next_time = (math.floor(current_time/function_time[0])* function_time[0]) + function_time[0]
+                return next_time- current_time
             else:
-                print('lists are cool too',function_time)
+                closest = 25
+                for time in function_time:
+                    if time > current_time:
+                        if time < closest:
+                            closest = time
+                return closest
 
 
+
+    def display_function_next_run_time(self,function_key,function_values):
+        '''
+        Input : function_key (str)
+                function_values (list)
+
+        Output : NA
+
+        a function that runs the "find_next_run_time" function for each time field,
+        displays that in the terminal in a readable fashion
+        '''
+        now = datetime.now()
+        current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
+        fields = ["minute", "hour","day", "month", "day of week"]
+        max_day = calendar.monthrange(now.year,now.month)
+        max_times = [59,23,max_day[1],12,6]
+
+        print(f"{function_key}")
+        for number in range(len(function_values)):
+            converted_time = self.convert_crontab_time(function_values[number],current_times[number])
+            time_remaining = self.find_next_run_time(converted_time,current_times[number],max_times[number])
+            print(f"you have {time_remaining} {fields[number]}/s... ")
+        print()
 
 
 
@@ -166,19 +208,15 @@ class CronRunTime:
                 function_index += 1
 
             user_input = input("type the corrisponding number to the function you want to check.\n: ")
-            print(self.grab_key_index(int(user_input),functions))
-            print(functions[self.grab_key_index(int(user_input),functions)])
 
-            now = datetime.now()
+            function_key = self.grab_key_index(user_input,functions)
+            self.display_function_next_run_time(function_key, functions[function_key])
 
-            current_times = [now.minute,now.hour,now.day,now.month,now.weekday()]
-            function_times = functions[self.grab_key_index(user_input,functions)]
+        elif user_input.lower() == "all":
+            functions = self.create_functions_dictionary()
 
-            time_differences = []
-
-            for number in range(len(function_times)):
-                converted_time = self.convert_crontab_time(function_times[number],current_times[number])
-                self.find_next_run_time(converted_time,current_times[number])
+            for key, values in functions.items():
+                self.display_function_next_run_time(key,values)
 
         elif user_input.lower() == "exit":
             exit()
@@ -187,18 +225,3 @@ class CronRunTime:
             self.terminal_ui()
 
 
-
-'''
-Testing below \/\/\/\/\/\/
-
-'''
-def testing():
-
-    filepath = ""
-    filename = "crontab_cases.txt"
-
-    # cronpath /var/spool/cron
-    #cron filename brandon
-
-    crontab = CronRunTime(filename,filepath)
-    crontab.terminal_ui()
